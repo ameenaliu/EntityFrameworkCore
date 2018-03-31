@@ -10,12 +10,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#pragma warning disable 1574
+#pragma warning disable CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
     ///         The base class for non-relational type mapping starting with version 2.1. Non-relational providers
-    ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping(TypeMappingInfo)" />
+    ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private CoreTypeMapping FindMappingWithConversion(
-            TypeMappingInfo mappingInfo,
+            in TypeMappingInfo mappingInfo,
             [CanBeNull] IProperty property)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
@@ -58,13 +60,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 k =>
                 {
                     var mapping = providerClrType == null
-                                  || providerClrType == mappingInfo.ClrType
-                        ? FindMapping(mappingInfo)
+                                  || providerClrType == k.ClrType
+                        ? FindMapping(k)
                         : null;
 
                     if (mapping == null)
                     {
-                        var sourceType = mappingInfo.ClrType;
+                        var sourceType = k.ClrType;
 
                         if (sourceType != null)
                         {
@@ -72,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 .ValueConverterSelector
                                 .Select(sourceType, providerClrType))
                             {
-                                var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
+                                var mappingInfoUsed = k.WithConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
 
                                 if (mapping == null

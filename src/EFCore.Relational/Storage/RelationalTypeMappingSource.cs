@@ -12,12 +12,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#pragma warning disable 1574
+#pragma warning disable CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         The base class for non-relational type mapping starting with version 2.1. Non-relational providers
-    ///         should derive from this class and override <see cref="FindMapping(RelationalTypeMappingInfo)" />
+    ///         The base class for relational type mapping starting with version 2.1. Relational providers
+    ///         should derive from this class and override <see cref="RelationalTypeMappingSource.FindMapping" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected abstract RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo);
+        protected abstract RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo);
 
         /// <summary>
         ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
@@ -64,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     Overridden to call <see cref="FindMapping(RelationalTypeMappingInfo)" />
+        ///    Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
         /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected override CoreTypeMapping FindMapping(TypeMappingInfo mappingInfo)
+        protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => throw new InvalidOperationException("FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.");
 
         /// <summary>
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual RelationalTypeMapping FindMappingWithConversion(
-            RelationalTypeMappingInfo mappingInfo,
+            in RelationalTypeMappingInfo mappingInfo,
             [CanBeNull] IProperty property)
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
@@ -97,13 +99,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 k =>
                 {
                     var mapping = providerClrType == null
-                                  || providerClrType == mappingInfo.ClrType
-                        ? FindMapping(mappingInfo)
+                                  || providerClrType == k.ClrType
+                        ? FindMapping(k)
                         : null;
 
                     if (mapping == null)
                     {
-                        var sourceType = mappingInfo.ClrType;
+                        var sourceType = k.ClrType;
 
                         if (sourceType != null)
                         {
@@ -111,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 .ValueConverterSelector
                                 .Select(sourceType, providerClrType))
                             {
-                                var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
+                                var mappingInfoUsed = k.WithConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
 
                                 if (mapping == null
