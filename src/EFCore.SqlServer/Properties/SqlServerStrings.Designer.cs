@@ -315,6 +315,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string FreeTextFunctionOnClient
             => GetString("FreeTextFunctionOnClient");
 
+        /// <summary>
+        ///     Placeholder
+        /// </summary>
+        public static string InvalidColumnNameForFreeText
+            => GetString("InvalidColumnNameForFreeText");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

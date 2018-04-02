@@ -222,4 +222,7 @@
   <data name="FreeTextFunctionOnClient" xml:space="preserve">
     <value>The 'FreeText' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
   </data>
+  <data name="InvalidColumnNameForFreeText" xml:space="preserve">
+    <value>Placeholder</value>
+  </data>
 </root>
